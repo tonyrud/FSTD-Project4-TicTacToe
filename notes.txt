@@ -1,0 +1,4 @@
+click on any empty box
+check if the box has anything in it
+add x or o depending who's turn it is
+switch to opposite players turn

@@ -210,16 +210,45 @@ h1 {
   transition: opacity .5s ease-in-out;
 }
 
-.hoverO {
-  opacity: 1;
-  /*background-image: url(../img/o.svg);*/
+.boxes .hoverO {
+  background-image: url(../img/o.svg);
 }
 
 .boxes .hoverX {
   background-image: url(../img/x.svg);
 }
 
+.players-input {
+  margin: 2.5em auto;
+  width: 20%;
+}
 
-/*.boxes li:hover {
-  background-image: url('../img/x.svg');
-}*/
+.players-input input {
+  width: 100%;
+  height: 34px;
+    border-radius: 3px;
+    box-shadow: none;
+    border-width: 0;
+    padding-left: 1em;
+    margin-top: 0.4em;
+}
+
+.players-input label {
+  margin-bottom: .5em;
+  color: #333
+}
+
+.player2-input {
+  margin-top: 1em;
+}
+
+.player2-input,
+.player1-input {
+  text-align: left;
+}
+
+.names .players {
+  top: 5rem;
+  outline: none;
+  color: #444;
+}

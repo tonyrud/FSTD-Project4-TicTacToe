@@ -8,6 +8,11 @@
     //DOM var
     let $playersHighlight = $('.players'),
         $boxes = $('.boxes'),
+        $winScreen = $('#finish'),
+        $playerOneName = $('.player1-name'),
+        $playerTwoName = $('.player2-name'),
+        $playerOneInput = $('#player1-input'),
+        $playerTwoInput = $('#player2-input'),
 
         //script var
         winConditions = [
@@ -16,13 +21,15 @@
             [7, 8, 9],
             [1, 4, 7],
             [2, 5, 8],
+            [3, 6, 9],
             [1, 5, 9],
             [7, 5, 3]
         ],
-        turns = 0;
+        turns = 0,
+        animationDuration = 350,
+        playAI = false;
 
-
-
+    $winScreen.hide();
 
     /*-----------------------
           Event handlers
@@ -31,29 +38,38 @@
     //start screen event
     $('.screen-start a').on('click', function (e) {
         e.preventDefault();
-        $('.screen').fadeOut(500);
+
+        //input values
+        let inputs = getInputs($playerOneInput, $playerTwoInput);
+
+        $('.screen').fadeOut(animationDuration);
         $playersHighlight.first().addClass('active');
+
+        //check if AI button was clicked
+        if ($(this).html().indexOf('AI') >= 0) {
+            playAI = true;
+            $('.name').hide();
+        } else {
+            $playerOneName.html(inputs.player1);
+            $playerTwoName.html(inputs.player2);
+        }
     });
 
     //hover event 
     $boxes.on('mouseenter', 'li', function (e) {
         let $current = $(this)
-        // $current.css('background-image', 'none')
         //check if empty
         if (!$current.attr('data-move')) {
             if ($('#player1').hasClass('active')) {
-                console.log('show O')
-                $current.addClass('hoverO fadeBG')
+                $current.addClass('hoverO');
             } else {
-                console.log('show X')
-                $current.addClass('hoverX')
+                $current.addClass('hoverX');
             }
         }
     });
 
     $boxes.on('mouseleave', 'li', function (e) {
-        let $current = $(this)
-        $current.removeClass('hoverO hoverX')
+        $(this).removeClass('hoverO hoverX');
     });
 
     //click on boxes event
@@ -69,17 +85,34 @@
 
             turns++;
             checkVictory();
-            // doAiMove();
+            if (playAI) {
+                setTimeout(function () {
+                    doAiTurn();
+                }, 450);
+            }
         }
-        console.log(turns)
-
     });
+
+    //reset game
+    $winScreen.on('click', ".button", function () {
+        $playersHighlight.removeClass('active');
+        $playersHighlight.first().addClass('active');
+        $('.boxes .box').attr('data-move', '');
+        $('.box').removeClass('box-filled-1 box-filled-2');
+        $winScreen.fadeOut(animationDuration);
+        turns = 0;
+    });
+
+    let getInputs = (name1, name2) => {
+        return {
+            player1: name1.val(),
+            player2: name2.val()
+        }
+    }
 
 
     //check if this box is empty
-    function isAvailableField($this) {
-        return !$this.attr('data-move');
-    };
+    let isAvailableField = ($this) => !$this.attr('data-move');
 
     //add data move 
     function doMove($this, move) {
@@ -88,6 +121,21 @@
         $playersHighlight.toggleClass('active');
     };
 
+    function doAiTurn() {
+        let found = false;
+        while (!found) {
+            let random = Math.floor(Math.random() * 9),
+                field = $('.box').eq(random);
+            console.log(random);
+            if (isAvailableField(field)) {
+                found = true;
+                doMove(field, 'box-filled-2');
+                turns++;
+                checkVictory();
+            }
+        }
+    }
+
     function checkVictory() {
         //skip check if turns less than 5
         if (turns < 5) {
@@ -95,11 +143,13 @@
         }
 
         if (hasWon('box-filled-1')) {
-            won();
+            gameEnd("o");
         } else if (hasWon('box-filled-2')) {
-            lost();
-        } else if (turns === 9) {
-            draw();
+            gameEnd("x");
+        }
+
+        if (turns === 9) {
+            gameEnd();
         }
     };
 
@@ -114,24 +164,31 @@
                     break;
                 }
             }
-            console.log(`line length is ${line.length} and win is ${j}`);
             if (j == line.length) {
                 return true;
             }
         }
     };
 
-    function won() {
-        console.log('Won!')
+    function gameEnd(winner) {
+        let winnerName = getInputs($playerOneInput, $playerTwoInput);
+        $winScreen.removeClass('screen-win-one screen-win-two screen-win-tie');
+        if (winner === 'o') {
+            $winScreen.addClass('screen-win-one');
+            $('.message').html(winnerName.player1 + ' Wins!');
+        } else if (winner === 'x') {
+            // debugger
+            $winScreen.addClass('screen-win-two');
+            if (playAI) {
+                $('.message').html('You lost to Javascript :(');
+            } else {
+                $('.message').html(winnerName.player2 + ' Wins!');
+            }
+        } else {
+            $winScreen.addClass('screen-win-tie');
+            $('.message').html('Draw');
+        }
+        $winScreen.fadeIn(animationDuration);
     }
-
-    function lost() {
-        console.log('Lost :(')
-    }
-
-    function draw() {
-        console.log('Draw')
-    }
-
 
 })(jQuery);

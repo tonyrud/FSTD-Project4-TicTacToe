@@ -13,7 +13,20 @@
   <div class="screen screen-start" id="start">
     <header>
       <h1>Tic Tac Toe</h1>
+      <div class="players-input">
+        <div class="player1-input">
+          <label for="player1-input">Player 1 Name</label>
+          <input type="text" name="" value="" id="player1-input">
+
+        </div>
+        <div class="player2-input">
+          <label for="player2-input">Player 2 Name</label>
+          <input type="text" name="" value="" id="player2-input">
+
+        </div>
+      </div>
       <a href="#" class="button">Start game</a>
+      <a href="#" class="button">Start game against AI</a>
     </header>
   </div>
   <div class="board" id="board">
@@ -45,6 +58,14 @@
           </svg>
         </li>
       </ul>
+      <ul class="names">
+        <li class="players ">
+          <h3 class="name player1-name">Name</h3>
+        </li>
+        <li class="players ">
+          <h3 class="name player2-name">Name 2</h3>
+        </li>
+      </ul>
     </header>
     <ul class="boxes">
       <li class="box"></li>
@@ -57,6 +78,13 @@
       <li class="box"></li>
       <li class="box"></li>
     </ul>
+  </div>
+  <div class="screen screen-win" id="finish">
+    <header>
+      <h1>Tic Tac Toe</h1>
+      <p class="message">Winner</p>
+      <a href="#" class="button">New game</a>
+    </header>
   </div>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
   <script src="js/application.js"></script>

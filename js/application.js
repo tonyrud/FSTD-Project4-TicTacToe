@@ -6,7 +6,7 @@
     ========================== */
 
     //DOM var
-    let $playersHighlight = $('.players'),
+    const $playersHighlight = $('.players'),
         $boxes = $('.boxes'),
         $winScreen = $('#finish'),
         $playerOneName = $('.player1-name'),
@@ -14,7 +14,8 @@
         $playerOneInput = $('#player1-input'),
         $playerTwoInput = $('#player2-input'),
 
-        //script var
+        //script variables
+        animationDuration = 350,
         winConditions = [
             [1, 2, 3],
             [4, 5, 6],
@@ -24,9 +25,9 @@
             [3, 6, 9],
             [1, 5, 9],
             [7, 5, 3]
-        ],
-        turns = 0,
-        animationDuration = 350,
+        ];
+
+    let turns = 0,
         playAI = false;
 
     $winScreen.hide();
@@ -38,7 +39,6 @@
     //start screen event
     $('.screen-start a').on('click', function (e) {
         e.preventDefault();
-
         //input values
         let inputs = getInputs($playerOneInput, $playerTwoInput);
 
@@ -56,10 +56,10 @@
     });
 
     //hover event 
-    $boxes.on('mouseenter', 'li', function (e) {
+    $boxes.on('mouseenter', 'li', function () {
         let $current = $(this)
         //check if empty
-        if (!$current.attr('data-move')) {
+        if (!$current.attr('data-moved')) {
             if ($('#player1').hasClass('active')) {
                 $current.addClass('hoverO');
             } else {
@@ -68,36 +68,35 @@
         }
     });
 
-    $boxes.on('mouseleave', 'li', function (e) {
+    $boxes.on('mouseleave', 'li', function () {
         $(this).removeClass('hoverO hoverX');
     });
 
     //click on boxes event
-    $boxes.on('click', 'li', function (e) {
+    $boxes.on('click', 'li', function () {
 
         if (isAvailableField($(this))) {
-            // debugger
             if ($('#player1').hasClass('active')) {
-                doMove($(this), 'box-filled-1');
+                playerMove($(this), 'box-filled-1');
             } else {
-                doMove($(this), 'box-filled-2');
+                playerMove($(this), 'box-filled-2');
             }
 
             turns++;
             checkVictory();
-            if (playAI) {
+            if (playAI && turns < 9) {
                 setTimeout(function () {
-                    doAiTurn();
+                    AiTurn();
                 }, 450);
             }
         }
     });
 
     //reset game
-    $winScreen.on('click', ".button", function () {
+    $winScreen.on('click', ".button", () => {
         $playersHighlight.removeClass('active');
         $playersHighlight.first().addClass('active');
-        $('.boxes .box').attr('data-move', '');
+        $('.boxes .box').attr('data-moved', '');
         $('.box').removeClass('box-filled-1 box-filled-2');
         $winScreen.fadeOut(animationDuration);
         turns = 0;
@@ -112,31 +111,32 @@
 
 
     //check if this box is empty
-    let isAvailableField = ($this) => !$this.attr('data-move');
+    let isAvailableField = ($this) => !$this.attr('data-moved');
 
     //add data move 
-    function doMove($this, move) {
-        $this.attr('data-move', move);
+    let playerMove = ($this, move) => {
+        $this.attr('data-moved', move);
         $this.addClass(move);
         $playersHighlight.toggleClass('active');
     };
 
-    function doAiTurn() {
-        let found = false;
-        while (!found) {
+    //randomly make a number, check if that square is isAvailableField
+    //keep doing this until open square is found
+    let AiTurn = () => {
+        let squareUsed = false;
+        while (!squareUsed) {
             let random = Math.floor(Math.random() * 9),
                 field = $('.box').eq(random);
-            console.log(random);
             if (isAvailableField(field)) {
-                found = true;
-                doMove(field, 'box-filled-2');
+                squareUsed = true;
+                playerMove(field, 'box-filled-2');
                 turns++;
                 checkVictory();
             }
         }
     }
 
-    function checkVictory() {
+    const checkVictory = () => {
         //skip check if turns less than 5
         if (turns < 5) {
             return;
@@ -146,31 +146,30 @@
             gameEnd("o");
         } else if (hasWon('box-filled-2')) {
             gameEnd("x");
-        }
-
-        if (turns === 9) {
+        } else if (turns === 9) {
             gameEnd();
         }
     };
 
     //loop through win array and compare to data in each box
-    function hasWon(move) {
-        for (var i = 0; i < winConditions.length; ++i) {
-            var line = winConditions[i];
-            var j = 0;
+    const hasWon = (move) => {
+        for (let i = 0; i < winConditions.length; ++i) {
+            let line = winConditions[i],
+                j = 0;
             for (; j < line.length; ++j) {
-                var num = line[j];
-                if ($('.box').eq(num - 1).attr('data-move') != move) {
+                let num = line[j];
+                if ($('.box').eq(num - 1).attr('data-moved') != move) {
                     break;
                 }
             }
+            //if line matches winArray, then winner for the move
             if (j == line.length) {
                 return true;
             }
         }
     };
 
-    function gameEnd(winner) {
+    let gameEnd = (winner) => {
         let winnerName = getInputs($playerOneInput, $playerTwoInput);
         $winScreen.removeClass('screen-win-one screen-win-two screen-win-tie');
         if (winner === 'o') {
@@ -190,5 +189,4 @@
         }
         $winScreen.fadeIn(animationDuration);
     }
-
 })(jQuery);
